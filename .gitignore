@@ -1,0 +1,46 @@
+# Node.js / Astro.js
+node_modules/
+dist/
+.build/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+venv/
+
+# Environment variables
+.env
+*.env
+
+# VSCode settings
+.vscode/
+*.code-workspace
+
+# Pytest
+.cache/
+*.pytest_cache/
+nosetests.xml
+coverage.xml
+*.cover
+*.log
+*.pot
+*.pyc
+*.pyo
+
+# MacOS
+.DS_Store
+
+# Linux
+*~
