@@ -11,6 +11,7 @@ class Post(Base):
     title = Column(String, index=True)
     content = Column(String)
     created_at = Column(DateTime, default=datetime.utcnow)
+    # TODO: agregar imágenes a los posts
     # TODO: agregar comentarios a los posts (si da tiempo)
 
     user = relationship("User", back_populates="posts")

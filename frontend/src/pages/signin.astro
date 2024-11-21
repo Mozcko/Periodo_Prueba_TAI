@@ -1,0 +1,11 @@
+---
+// src/pages/login.astro
+import Layout from "../layouts/Layout.astro";
+import SignInForm from "../components/React/SignInForm.jsx";
+---
+
+<Layout title="Registrar Nueva cuenta">
+  <div class="w-full max-w-sm">
+    <SignInForm client:load />
+  </div>
+</Layout>
