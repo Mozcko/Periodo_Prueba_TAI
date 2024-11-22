@@ -6,8 +6,8 @@ class UserBase(BaseModel):
     name: str
     email: str
     password: str
-    role: str
-    is_active: bool
+    role: Optional[str] = 'user'
+    is_active: Optional[bool] = True
 
 # esquema para actualización de usuarios
 class UserUpdate(BaseModel):

@@ -104,13 +104,17 @@ Puedes utilizar estas credenciales para iniciar sesión y obtener un token de ac
 ## Endpoints disponibles
 
 - **GET /users**: Obtiene una lista de usuarios.
-- **GET /user/{user_id}**: Obtiene un usuario por ID.
-- **PUT /user/{user_id}**: Actualiza un usuario.
-- **DELETE /user/{user_id}**: Elimina un usuario.
+- **GET /users/{user_id}**: Obtiene un usuario por ID.
+- **PUT /users/{user_id}**: Actualiza un usuario.
+- **DELETE /users/{user_id}**: Elimina un usuario.
 - **POST /login**: Inicia sesión y obtiene un token de acceso.
 - **POST /register**: Crea un nuevo usuario.
 
-<!-- TODO: agregar los endpoints de los posts del blog -->
+- **GET /posts**: Obtiene una lista de posts.
+- **GET /posts/{post_id}**: Obtiene un post por ID.
+- **PUT /posts/{post_id}**: Actualiza un post.
+- **DELETE /posts/{post_id}**: Elimina un post.
+- **POST /posts**: Crea un nuevo post.
 
 ## Ejemplos de uso
 

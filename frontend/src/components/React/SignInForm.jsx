@@ -1,4 +1,3 @@
-// src/components/SignInForm.jsx
 import React, { useState } from "react";
 
 const SignInForm = () => {
@@ -8,6 +7,11 @@ const SignInForm = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [generalError, setGeneralError] = useState("");
 
   const validatePassword = (password) => {
     const minLength = 8;
@@ -26,25 +30,73 @@ const SignInForm = () => {
     return "";
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setLoading(true);
+    setPasswordError("");
+    setConfirmPasswordError("");
+    setSuccessMessage("");
+    setGeneralError("");
+
     const passwordValidationError = validatePassword(password);
     setPasswordError(passwordValidationError);
     setConfirmPasswordError("");
 
     if (passwordValidationError) {
+      setLoading(false);
       return;
     }
 
     if (password !== confirmPassword) {
       setConfirmPasswordError("Las contraseñas no coinciden.");
+      setLoading(false);
       return;
     }
 
-    // TODO: agregar la lógica para manejar el registro
-    console.log("Nombre:", name);
-    console.log("Email:", email);
-    console.log("Password:", password);
+    try {
+      const response = await fetch(
+        `${import.meta.env.PUBLIC_API_ENDPOINT}/users/register`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            is_active: true, // Agregamos el campo is_active
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        // Si la respuesta no es 2xx, lanzamos un error con el mensaje recibido
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Error al registrar la cuenta.");
+      }
+
+      const data = await response.json();
+      // Si el registro es exitoso, muestra el mensaje de éxito y redirige
+      setSuccessMessage("Registro exitoso, redirigiendo...");
+      setTimeout(() => {
+        window.location.href = "/login"; // Redirige al login
+      }, 2000); // Espera 2 segundos antes de redirigir
+    } catch (error) {
+      console.error("Error al registrar la cuenta:", error);
+      setGeneralError(error.message || "Error desconocido"); // Mostrar mensaje de error general
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword((prevState) => !prevState); // Cambiar el estado para mostrar/ocultar la contraseña
+  };
+
+  const toggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prevState) => !prevState); // Cambiar el estado para mostrar/ocultar la contraseña
   };
 
   return (
@@ -53,6 +105,11 @@ const SignInForm = () => {
       className="max-w-md mx-auto bg-gray-700 p-8 rounded-lg shadow-md"
     >
       <h2 className="text-2xl font-semibold mb-6 text-white">Registrarse</h2>
+      {successMessage && (
+        <div className="text-green-500 mb-4">{successMessage}</div>
+      )}
+      {generalError && <div className="text-red-500 mb-4">{generalError}</div>}{" "}
+      {/* Mostrar error general */}
       <div className="mb-4">
         <label htmlFor="name" className="block text-gray-300 mb-2">
           Nombre
@@ -79,12 +136,12 @@ const SignInForm = () => {
           className="w-full p-2 border border-gray-500 rounded bg-gray-600 text-white"
         />
       </div>
-      <div className="mb-4">
+      <div className="mb-4 relative">
         <label htmlFor="password" className="block text-gray-300 mb-2">
           Contraseña
         </label>
         <input
-          type="password"
+          type={showPassword ? "text" : "password"}
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -94,13 +151,20 @@ const SignInForm = () => {
         {passwordError && (
           <p className="text-red-500 text-sm mt-1">{passwordError}</p>
         )}
+        <button
+          type="button"
+          onClick={togglePasswordVisibility}
+          className="absolute right-3 top-10 text-gray-400"
+        >
+          👁️
+        </button>
       </div>
-      <div className="mb-4">
+      <div className="mb-4 relative">
         <label htmlFor="confirmPassword" className="block text-gray-300 mb-2">
           Confirmar Contraseña
         </label>
         <input
-          type="password"
+          type={showConfirmPassword ? "text" : "password"}
           id="confirmPassword"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
@@ -110,12 +174,20 @@ const SignInForm = () => {
         {confirmPasswordError && (
           <p className="text-red-500 text-sm mt-1">{confirmPasswordError}</p>
         )}
+        <button
+          type="button"
+          onClick={toggleConfirmPasswordVisibility}
+          className="absolute right-3 top-10 text-gray-400"
+        >
+          👁️
+        </button>
       </div>
       <button
         type="submit"
         className="w-full bg-gray-600 text-white py-2 rounded hover:bg-gray-500 transition-colors duration-300"
+        disabled={loading}
       >
-        Registrarse
+        {loading ? "Cargando..." : "Registrarse"}
       </button>
       <p className="mt-4 text-gray-300 text-center">
         ¿Ya tienes una cuenta?{" "}

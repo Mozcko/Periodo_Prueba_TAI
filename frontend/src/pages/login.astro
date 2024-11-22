@@ -1,11 +1,10 @@
 ---
-// src/pages/login.astro
 import Layout from "../layouts/Layout.astro";
 import LoginForm from "../components/React/LoginForm.jsx";
 ---
 
 <Layout title="Iniciar Sesión">
   <div class="w-full max-w-sm">
-    <LoginForm />
+    <LoginForm client:load/>
   </div>
 </Layout>

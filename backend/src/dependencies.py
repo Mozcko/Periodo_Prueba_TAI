@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from jose import JWTError, jwt
+from datetime import datetime, timedelta, timezone
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
@@ -22,32 +23,46 @@ credentials_exception = HTTPException(
 
 
 def create_access_token(data: dict) -> str:
-    import time
-
-    to_encode: dict = data.copy()
-    expire: int = int(time.time()) + ACCESS_TOKEN_EXPIRE_HOURS * 3600
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(hours=ACCESS_TOKEN_EXPIRE_HOURS)
     to_encode.update({"exp": expire})
-    encoded_jwt: str = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
 
 def get_current_admin(
     token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)
 ) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="No se pudieron validar las credenciales.",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(f"Payload del token: {payload}")  # Verifica el contenido del payload
+
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
+
         role: str = payload.get("role")
-        if role is None or role != "admin_user":
+        if role != "admin_user":
             raise credentials_exception
+
         admin = db.query(User).filter(User.email == email).first()
         if admin is None:
-            create_admin_user()
+            raise credentials_exception
+
         return admin
     except JWTError:
         raise credentials_exception
+
+
+def get_admin_user(current_user: User = Depends(get_current_admin)) -> User:
+    return current_user
 
 
 def get_current_active_user(
@@ -66,12 +81,12 @@ def get_current_active_user(
         raise credentials_exception
 
 
-def get_admin_user(current_user: User = Depends(get_current_admin)) -> User:
-    if current_user.role != "admin_user":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail="No hay permisos de admin"
-        )
-    return current_user
+# def get_admin_user(current_user: User = Depends(get_current_admin)) -> User:
+#     if current_user.role != "admin_user":
+#         raise HTTPException(
+#             status_code=status.HTTP_403_FORBIDDEN, detail="No hay permisos de admin"
+#         )
+#     return current_user
 
 
 # def get_read_write_user(current_user: User = Depends(get_current_admin)) -> User:

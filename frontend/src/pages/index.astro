@@ -4,13 +4,13 @@ import Hero from "../components/Hero.astro";
 import PostsSection from "../components/React/PostsSection";
 import CreatePostForm from "../components/React/CreatePostForm";
 
-console.log(import.meta.env.PUBLIC_API_ENDPOINT);
+// console.log(import.meta.env.PUBLIC_API_ENDPOINT);
 ---
 
 <Layout title="Inicio Blog">
   <main>
     <Hero />
-    <PostsSection />
+    <PostsSection client:load/>
     <CreatePostForm client:visible />
   </main>
 </Layout>
